@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 	<name>Dictionary Publishing Module</name>
 	<description>Lets you publish dictionary</description>
-	<url>https://wiki.openmrs.org/display/docs/Dictionary+Publishing+Module+Module</url>
+	<url>https://wiki.openmrs.org/display/docs/Dictionary+Publishing+Module</url>
 
 	<developers>
 		<developer>
@@ -23,9 +23,9 @@
 	</organization>
 
 	<scm>
-		<connection>scm:git:https://github.com/openmrs/openmrs-module-metadatasharing</connection>
-		<developerConnection>scm:git:https://github.com/openmrs/openmrs-module-metadatasharing</developerConnection>
-		<url>https://github.com/openmrs/openmrs-module-metadatasharing</url>
+		<connection>scm:git:https://github.com/openmrs/openmrs-module-dictionarypublishing</connection>
+		<developerConnection>scm:git:https://github.com/openmrs/openmrs-module-dictionarypublishing</developerConnection>
+		<url>https://github.com/openmrs/openmrs-module-dictionarypublishing</url>
 	</scm>
 
 	<modules>
