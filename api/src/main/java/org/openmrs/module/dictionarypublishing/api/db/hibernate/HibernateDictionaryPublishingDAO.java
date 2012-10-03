@@ -43,7 +43,7 @@ public class HibernateDictionaryPublishingDAO implements DictionaryPublishingDAO
 	 * See https://tickets.openmrs.org/browse/TRUNK-1638
 	 * </pre>
 	 */
-	private Boolean hasDateRetiredColumn;
+	private static Boolean hasDateRetiredColumn;
 	
 	/**
 	 * @param sessionFactory the sessionFactory to set
