@@ -65,7 +65,7 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 	@Override
 	public void publishNewVersion() throws Exception {
 		GlobalProperty lastFullPublishDateGP = Context.getAdministrationService().getGlobalPropertyObject(
-		    DictionaryPublishingConstants.LAST_FULL_DICTIONARY_PUBLISH_DATE);
+		    DictionaryPublishingConstants.GP_LAST_FULL_DICTIONARY_PUBLISH_DATE);
 		Date fromDate = null;
 		boolean isInitialExport = false;
 		MetadataSharingService mds = Context.getService(MetadataSharingService.class);
@@ -76,7 +76,7 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 			isInitialExport = true;
 		} else {
 			String groupUuid = Context.getAdministrationService().getGlobalProperty(
-			    DictionaryPublishingConstants.EXPORTED_PACKAGES_GROUP_UUID);
+			    DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
 			if (StringUtils.isNotBlank(groupUuid)) {
 				expPackage = mds.getLatestExportedPackageByGroup(groupUuid);
 				fromDate = expPackage.getDateCreated();
@@ -114,10 +114,10 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 				AdministrationService as = Context.getAdministrationService();
 				as.purgeGlobalProperty(lastFullPublishDateGP);
 				GlobalProperty groupUuidGP = as
-				        .getGlobalPropertyObject(DictionaryPublishingConstants.EXPORTED_PACKAGES_GROUP_UUID);
+				        .getGlobalPropertyObject(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
 				if (groupUuidGP == null) {
-					groupUuidGP = new GlobalProperty(DictionaryPublishingConstants.EXPORTED_PACKAGES_GROUP_UUID, exporter
-					        .getExportedPackage().getGroupUuid(),
+					groupUuidGP = new GlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID,
+					        exporter.getExportedPackage().getGroupUuid(),
 					        "The group uuid of the packages exported from this dictionary");
 				} else {
 					groupUuidGP.setPropertyValue(exporter.getExportedPackage().getGroupUuid());

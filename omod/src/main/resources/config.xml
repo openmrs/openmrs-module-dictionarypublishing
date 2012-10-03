@@ -31,7 +31,7 @@
 	
 	<!-- Global properties -->
 	<globalProperty>
-		<property>${project.parent.artifactId}.exportedPackagesGroupUuid</property>
+		<property>${project.parent.artifactId}.dictionaryPackageGroupUuid</property>
 		<defaultValue></defaultValue>
 		<description>The group uuid of the packages exported from this dictionary</description>
 	</globalProperty>

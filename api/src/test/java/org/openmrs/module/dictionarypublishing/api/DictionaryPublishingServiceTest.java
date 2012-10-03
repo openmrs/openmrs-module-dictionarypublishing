@@ -59,9 +59,9 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 		Assert.assertEquals(true, p.isPublished());
 		Assert.assertEquals(6, p.getItems().size());
 		//should have cleared the GP since this is the initial export
-		Assert.assertNull(as.getGlobalProperty(DictionaryPublishingConstants.LAST_FULL_DICTIONARY_PUBLISH_DATE));
+		Assert.assertNull(as.getGlobalProperty(DictionaryPublishingConstants.GP_LAST_FULL_DICTIONARY_PUBLISH_DATE));
 		Assert.assertEquals(p.getGroupUuid(),
-		    as.getGlobalProperty(DictionaryPublishingConstants.EXPORTED_PACKAGES_GROUP_UUID));
+		    as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID));
 	}
 	
 	/**
@@ -88,7 +88,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 		Assert.assertEquals(
 		    1,
 		    mss.getLatestExportedPackageByGroup(
-		        as.getGlobalProperty(DictionaryPublishingConstants.EXPORTED_PACKAGES_GROUP_UUID)).getItems().size());
+		        as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID)).getItems().size());
 	}
 	
 	/**
@@ -111,7 +111,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 	 * @throws InterruptedException
 	 */
 	private static void publishInitialVersion(AdministrationService as) throws Exception {
-		GlobalProperty gp = new GlobalProperty(DictionaryPublishingConstants.LAST_FULL_DICTIONARY_PUBLISH_DATE,
+		GlobalProperty gp = new GlobalProperty(DictionaryPublishingConstants.GP_LAST_FULL_DICTIONARY_PUBLISH_DATE,
 		        "2008-08-18 00:00:00");
 		as.saveGlobalProperty(gp);
 		MetadataSharingService mss = Context.getService(MetadataSharingService.class);

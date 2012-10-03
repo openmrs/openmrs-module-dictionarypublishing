@@ -16,10 +16,12 @@ package org.openmrs.module.dictionarypublishing.api.db.hibernate;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
 import org.openmrs.module.dictionarypublishing.api.db.DictionaryPublishingDAO;
@@ -32,6 +34,16 @@ public class HibernateDictionaryPublishingDAO implements DictionaryPublishingDAO
 	protected final Log log = LogFactory.getLog(this.getClass());
 	
 	private SessionFactory sessionFactory;
+	
+	/**
+	 * specifies if the current version of openmrs has the dateRetired column in hbm file, there are
+	 * versions that don't have this column in the concept hbm file.
+	 * 
+	 * <pre>
+	 * See https://tickets.openmrs.org/browse/TRUNK-1638
+	 * </pre>
+	 */
+	private Boolean hasDateRetiredColumn;
 	
 	/**
 	 * @param sessionFactory the sessionFactory to set
@@ -54,10 +66,20 @@ public class HibernateDictionaryPublishingDAO implements DictionaryPublishingDAO
 	@Override
 	public List<Concept> getConceptsToExport(Date fromDate) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Concept.class);
-		criteria.add(Restrictions.eq("retired", false));
 		if (fromDate != null) {
-			criteria.add(Restrictions.or(Restrictions.gt("dateCreated", fromDate),
-			    Restrictions.gt("dateChanged", fromDate)));
+			if (hasDateRetiredColumn == null) {
+				hasDateRetiredColumn = ArrayUtils.contains(
+				    sessionFactory.getClassMetadata(Concept.class).getPropertyNames(), "dateRetired");
+			}
+			
+			Criterion c;
+			if (hasDateRetiredColumn) {
+				c = Restrictions.or(Restrictions.gt("dateCreated", fromDate),
+				    Restrictions.or(Restrictions.gt("dateChanged", fromDate), Restrictions.gt("dateRetired", fromDate)));
+			} else {
+				c = Restrictions.or(Restrictions.gt("dateCreated", fromDate), Restrictions.gt("dateChanged", fromDate));
+			}
+			criteria.add(c);
 		}
 		
 		return criteria.list();
