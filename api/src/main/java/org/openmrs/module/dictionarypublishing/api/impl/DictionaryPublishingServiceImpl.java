@@ -35,10 +35,12 @@ import org.openmrs.module.metadatasharing.api.MetadataSharingService;
 import org.openmrs.module.metadatasharing.task.impl.ExportPackageTask;
 import org.openmrs.module.metadatasharing.wrapper.PackageExporter;
 import org.openmrs.util.OpenmrsConstants;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * It is a default implementation of {@link DictionaryPublishingService}.
  */
+@Transactional
 public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implements DictionaryPublishingService {
 	
 	protected final Log log = LogFactory.getLog(this.getClass());
