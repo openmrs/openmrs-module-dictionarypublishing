@@ -17,7 +17,8 @@ import org.openmrs.api.OpenmrsService;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * This service exposes module's core functionality. It is a Spring managed bean which is configured in moduleApplicationContext.xml.
+ * This service exposes module's core functionality. It is a Spring managed bean which is configured
+ * in moduleApplicationContext.xml.
  * <p>
  * It can be accessed only via Context:<br>
  * <code>
@@ -28,9 +29,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 public interface DictionaryPublishingService extends OpenmrsService {
-     
-	/*
-	 * Add service methods here
+	
+	/**
+	 * Creates a package and publish all concepts modified since the last published version of a
+	 * dictionary
 	 * 
+	 * @should create a package since the last full publish date
+	 * @should create a package with only changes since the last full publish date
+	 * @should not create no package if there are no changes since the last full publish date
+	 * @throws Exception TODO
 	 */
+	public void publishNewVersion() throws Exception;
 }

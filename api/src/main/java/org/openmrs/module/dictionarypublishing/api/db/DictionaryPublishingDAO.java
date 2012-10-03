@@ -13,14 +13,25 @@
  */
 package org.openmrs.module.dictionarypublishing.api.db;
 
+import java.util.Date;
+import java.util.List;
+
+import org.openmrs.Concept;
 import org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService;
 
 /**
- *  Database methods for {@link DictionaryPublishingService}.
+ * Database methods for {@link DictionaryPublishingService}.
  */
 public interface DictionaryPublishingDAO {
 	
-	/*
-	 * Add DAO methods here
+	/**
+	 * Gets concepts to be published, if this is not the first publish after the dictionary was
+	 * created, only concepts that were created or modified after the last full subscription date
+	 * will be included otherwise all, the lastPublishDate
+	 * 
+	 * @param fromDate the date when the last publish was done
+	 * @return a list of concepts
+	 * @should return all concept modified or created after the specified date
 	 */
+	public List<Concept> getConceptsToExport(Date fromDate);
 }
