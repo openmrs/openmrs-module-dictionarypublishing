@@ -32,13 +32,7 @@
 					</property>
 					<property name="target">
 						<bean class="${project.parent.groupId}.${project.parent.artifactId}.api.impl.DictionaryPublishingServiceImpl">
-							<property name="dao">
-								<bean class="${project.parent.groupId}.${project.parent.artifactId}.api.db.hibernate.HibernateDictionaryPublishingDAO">
-									<property name="sessionFactory">
-										<ref bean="sessionFactory" />
-									</property>
-								</bean>
-							</property>
+							<property name="dao" ref="dictionaryPublishingDAO" />
 						</bean>
 					</property>
 					<property name="preInterceptors">
@@ -50,6 +44,10 @@
 				</bean>
 			</list>
 		</property>
+	</bean>
+	
+	<bean id="dictionaryPublishingDAO" class="${project.parent.groupId}.${project.parent.artifactId}.api.db.hibernate.HibernateDictionaryPublishingDAO">
+		<property name="sessionFactory" ref="sessionFactory" />	
 	</bean>
 	
 </beans>

@@ -29,6 +29,12 @@
 	<!-- Module Activator -->
 	<activator>${project.parent.groupId}.${project.parent.artifactId}.DictionaryPublishingActivator</activator>
 	
+	<!-- Global properties -->
+	<globalProperty>
+		<property>${project.parent.artifactId}.exportedPackagesGroupUuid</property>
+		<defaultValue></defaultValue>
+		<description>The group uuid of the packages exported from this dictionary</description>
+	</globalProperty>
 	
 	<!-- Adds link to admin page -->
 	<extension>
