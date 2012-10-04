@@ -14,6 +14,7 @@
 package org.openmrs.module.dictionarypublishing.api;
 
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
 
 /**
  * This service exposes module's core functionality. It is a Spring managed bean which is configured
@@ -38,4 +39,13 @@ public interface DictionaryPublishingService extends OpenmrsService {
 	 * @throws Exception TODO
 	 */
 	public void publishNewVersion() throws Exception;
+	
+	/**
+	 * Unpublishes the exported packages with the group id specified by the
+	 * {@link DictionaryPublishingConstants#EXPORTED_PACKAGES_GROUP_UUID} global property
+	 * 
+	 * @throws Exception
+	 * @should un publish the matching exported packages in this dictionary
+	 */
+	public void unpublishDictionary() throws Exception;
 }
