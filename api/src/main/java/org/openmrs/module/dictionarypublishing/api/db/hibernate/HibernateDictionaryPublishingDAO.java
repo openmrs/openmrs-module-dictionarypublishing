@@ -43,13 +43,16 @@ public class HibernateDictionaryPublishingDAO implements DictionaryPublishingDAO
 	 * See https://tickets.openmrs.org/browse/TRUNK-1638
 	 * </pre>
 	 */
-	private static Boolean hasDateRetiredColumn;
+	private boolean hasDateRetiredColumn;
 	
 	/**
 	 * @param sessionFactory the sessionFactory to set
 	 */
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+		
+		hasDateRetiredColumn = ArrayUtils.contains(sessionFactory.getClassMetadata(Concept.class).getPropertyNames(),
+		    "dateRetired");
 	}
 	
 	/**
@@ -67,11 +70,6 @@ public class HibernateDictionaryPublishingDAO implements DictionaryPublishingDAO
 	public List<Concept> getConceptsToExport(Date fromDate) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Concept.class);
 		if (fromDate != null) {
-			if (hasDateRetiredColumn == null) {
-				hasDateRetiredColumn = ArrayUtils.contains(
-				    sessionFactory.getClassMetadata(Concept.class).getPropertyNames(), "dateRetired");
-			}
-			
 			Criterion c;
 			if (hasDateRetiredColumn) {
 				c = Restrictions.or(Restrictions.gt("dateCreated", fromDate),
