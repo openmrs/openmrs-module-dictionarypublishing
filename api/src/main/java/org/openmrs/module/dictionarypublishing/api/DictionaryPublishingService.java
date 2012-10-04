@@ -14,7 +14,6 @@
 package org.openmrs.module.dictionarypublishing.api;
 
 import org.openmrs.api.OpenmrsService;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This service exposes module's core functionality. It is a Spring managed bean which is configured
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @see org.openmrs.api.context.Context
  */
-@Transactional
 public interface DictionaryPublishingService extends OpenmrsService {
 	
 	/**
