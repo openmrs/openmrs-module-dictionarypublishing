@@ -105,6 +105,27 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 	}
 	
 	/**
+	 * @see {@link DictionaryPublishingService#unpublishDictionary()}
+	 */
+	@Test
+	@Verifies(value = "should un publish the matching exported packages in this dictionary", method = "unpublishDictionary()")
+	public void unpublishDictionary_shouldUnPublishTheMatchingExportedPackagesInThisDictionary() throws Exception {
+		AdministrationService as = Context.getAdministrationService();
+		publishInitialVersion(as);
+		String groupUuid = as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+		Assert.assertNotNull(groupUuid);
+		MetadataSharingService mss = Context.getService(MetadataSharingService.class);
+		List<ExportedPackage> packages = mss.getExportedPackagesByGroup(groupUuid);
+		Assert.assertEquals(1, packages.size());
+		Assert.assertEquals(true, packages.get(0).isPublished());
+		
+		Context.getService(DictionaryPublishingService.class).unpublishDictionary();
+		packages = mss.getExportedPackagesByGroup(groupUuid);
+		Assert.assertEquals(1, packages.size());
+		Assert.assertEquals(false, packages.get(0).isPublished());
+	}
+	
+	/**
 	 * Performs the first full publish
 	 * 
 	 * @param as {@link AdministrationService} object
