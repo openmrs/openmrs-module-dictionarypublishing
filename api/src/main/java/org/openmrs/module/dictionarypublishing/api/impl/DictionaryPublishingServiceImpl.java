@@ -126,4 +126,25 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 			}
 		}
 	}
+	
+	/**
+	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#unpublishDictionary()
+	 */
+	@Override
+	public void unpublishDictionary() throws Exception {
+		AdministrationService as = Context.getAdministrationService();
+		String groupUuid = as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+		if (StringUtils.isBlank(groupUuid)) {
+			log.warn("The dictionary is not yet published");
+			return;
+		}
+		
+		MetadataSharingService mds = Context.getService(MetadataSharingService.class);
+		for (ExportedPackage exportedPackage : mds.getExportedPackagesByGroup(groupUuid)) {
+			if (exportedPackage.isPublished()) {
+				exportedPackage.setPublished(false);
+				mds.saveExportedPackage(exportedPackage);
+			}
+		}
+	}
 }
