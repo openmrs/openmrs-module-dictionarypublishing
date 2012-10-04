@@ -34,7 +34,6 @@ import org.openmrs.module.metadatasharing.MetadataSharingConsts;
 import org.openmrs.module.metadatasharing.api.MetadataSharingService;
 import org.openmrs.module.metadatasharing.task.impl.ExportPackageTask;
 import org.openmrs.module.metadatasharing.wrapper.PackageExporter;
-import org.openmrs.util.OpenmrsConstants;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -93,7 +92,6 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 			PackageExporter exporter = MetadataSharing.getInstance().newPackageExporter();
 			exporter.getPackage().setDescription("Contains " + concepts.size() + " concepts ");
 			exporter.getPackage().setDateCreated(dateCreated);
-			exporter.getPackage().setOpenmrsVersion(OpenmrsConstants.OPENMRS_VERSION_SHORT);
 			if (isInitialExport) {
 				exporter.getPackage().setName("Package");
 				exporter.getExportedPackage().setIncrementalVersion(false);
