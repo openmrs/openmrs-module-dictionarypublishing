@@ -19,35 +19,39 @@
 
 	<!-- Add here beans related to the API context -->
 
-	
+
 	<!-- Services accessible via Context.getService() -->
 	<bean parent="serviceContext">
 		<property name="moduleService">
 			<list>
 				<value>${project.parent.groupId}.${project.parent.artifactId}.api.DictionaryPublishingService</value>
-				<bean
-					class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-					<property name="transactionManager">
-						<ref bean="transactionManager" />
-					</property>
-					<property name="target">
-						<bean class="${project.parent.groupId}.${project.parent.artifactId}.api.impl.DictionaryPublishingServiceImpl">
-							<property name="dao" ref="dictionaryPublishingDAO" />
-						</bean>
-					</property>
-					<property name="preInterceptors">
-						<ref bean="serviceInterceptors" />
-					</property>
-					<property name="transactionAttributeSource">
-						<ref bean="transactionAttributeSource" />
-					</property>
-				</bean>
+				<ref bean="dictionaryPublishingService"/>
 			</list>
 		</property>
 	</bean>
-	
-	<bean id="dictionaryPublishingDAO" class="${project.parent.groupId}.${project.parent.artifactId}.api.db.hibernate.HibernateDictionaryPublishingDAO">
-		<property name="sessionFactory" ref="sessionFactory" />	
+
+	<bean id="dictionaryPublishingService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="target">
+			<bean
+				class="${project.parent.groupId}.${project.parent.artifactId}.api.impl.DictionaryPublishingServiceImpl">
+				<property name="dao" ref="dictionaryPublishingDAO" />
+			</bean>
+		</property>
+		<property name="preInterceptors">
+			<ref bean="serviceInterceptors" />
+		</property>
+		<property name="transactionAttributeSource">
+			<ref bean="transactionAttributeSource" />
+		</property>
 	</bean>
-	
+
+	<bean id="dictionaryPublishingDAO"
+		class="${project.parent.groupId}.${project.parent.artifactId}.api.db.hibernate.HibernateDictionaryPublishingDAO">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
 </beans>

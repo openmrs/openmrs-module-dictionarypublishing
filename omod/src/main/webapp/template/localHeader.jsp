@@ -7,7 +7,7 @@
 	<li
 		<c:if test='<%= request.getRequestURI().contains("/publish") %>'>class="active"</c:if>>
 		<a
-		href="${pageContext.request.contextPath}/module/dictionarypublishing/manage.form"><spring:message
+		href="${pageContext.request.contextPath}/module/dictionarypublishing/publish.form"><spring:message
 				code="dictionarypublishing.publish" /></a>
 	</li>
 	

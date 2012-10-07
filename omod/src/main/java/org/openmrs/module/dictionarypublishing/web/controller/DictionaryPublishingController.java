@@ -13,12 +13,18 @@
  */
 package org.openmrs.module.dictionarypublishing.web.controller;
 
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.ConceptSource;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.conceptpubsub.api.ConceptPubSubService;
 import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
+import org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +36,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class DictionaryPublishingController {
 	
+	public static final String MODULE_URL = "/module/dictionarypublishing/";
+	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	@RequestMapping(value = "/module/dictionarypublishing/concept-dictionary", method = RequestMethod.GET)
+	@Autowired
+	private DictionaryPublishingService service;
+	
+	@Autowired
+	private ConceptPubSubService mappingService;
+	
+	@RequestMapping(value = "concept-dictionary", method = RequestMethod.GET)
 	public String getConceptDictionary(ModelMap model) {
 		String groupUuid = Context.getAdministrationService().getGlobalProperty(
 		    DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
@@ -40,6 +54,58 @@ public class DictionaryPublishingController {
 			throw new APIException("The requested dictionary hasn't yet been published");
 		}
 		
-		return "redirect:/module/metadatasharing/package/" + groupUuid;
+		return "redirect:/ws/rest/metadatasharing/package/" + groupUuid + "/latest";
+	}
+	
+	@RequestMapping(value = MODULE_URL + "publish")
+	public String configurePublish(ModelMap model) throws Exception {
+		if (!mappingService.isLocalSourceConfigured()) {
+			return MODULE_URL + "notConfigured";
+		}
+		
+		if (!service.hasDictionaryBeenEverPublished()) {
+			Date nextPublishDate = service.getNextPublishDate();
+			model.addAttribute("nextPublishDate", nextPublishDate);
+		}
+		
+		long conceptCount = service.getConceptCountSinceLastDatePublished();
+		model.addAttribute("conceptCount", conceptCount);
+		
+		ConceptSource localSource = mappingService.getLocalSource();
+		model.addAttribute("localSource", localSource);
+		
+		boolean hasEverBeenPublished = service.hasDictionaryBeenEverPublished();
+		model.addAttribute("hasEverBeenPublished", hasEverBeenPublished);
+		
+		String publishedUrl = service.getPublishedUrl();
+		model.addAttribute("publishedUrl", publishedUrl);
+		
+		if (hasEverBeenPublished) {
+			boolean isPublished = service.isDictionaryPublished();
+			model.addAttribute("isPublished", isPublished);
+		
+			int lastPublishedVersion = service.getLastPublishedVersion();
+			model.addAttribute("lastPublishedVersion", lastPublishedVersion);
+		}
+		
+		return null;
+	}
+	
+	@RequestMapping(value = MODULE_URL + "publishNewVersion", method = RequestMethod.POST)
+	public String publishNewVersion(ModelMap model) throws Exception {
+		service.publishNewVersion();
+		return "redirect:publish.form";
+	}
+	
+	@RequestMapping(value = MODULE_URL + "disablePublishing", method = RequestMethod.POST)
+	public String disablePublishing() throws Exception {
+		service.disablePublishingDictionary();
+		return "redirect:publish.form";
+	}
+	
+	@RequestMapping(value = MODULE_URL + "enablePublishing", method = RequestMethod.POST)
+	public String enablePublishing() {
+		service.enablePublishingDictionary();
+		return "redirect:publish.form";
 	}
 }

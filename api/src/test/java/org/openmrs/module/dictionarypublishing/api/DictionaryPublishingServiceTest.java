@@ -59,7 +59,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 		Assert.assertEquals(true, p.isPublished());
 		Assert.assertEquals(6, p.getItems().size());
 		//should have cleared the GP since this is the initial export
-		Assert.assertNull(as.getGlobalProperty(DictionaryPublishingConstants.GP_LAST_FULL_DICTIONARY_PUBLISH_DATE));
+		Assert.assertNull(as.getGlobalProperty(DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE));
 		Assert.assertEquals(p.getGroupUuid(),
 		    as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID));
 	}
@@ -105,7 +105,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 	}
 	
 	/**
-	 * @see {@link DictionaryPublishingService#unpublishDictionary()}
+	 * @see {@link DictionaryPublishingService#disablePublishingDictionary()}
 	 */
 	@Test
 	@Verifies(value = "should un publish the matching exported packages in this dictionary", method = "unpublishDictionary()")
@@ -119,7 +119,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 		Assert.assertEquals(1, packages.size());
 		Assert.assertEquals(true, packages.get(0).isPublished());
 		
-		Context.getService(DictionaryPublishingService.class).unpublishDictionary();
+		Context.getService(DictionaryPublishingService.class).disablePublishingDictionary();
 		packages = mss.getExportedPackagesByGroup(groupUuid);
 		Assert.assertEquals(1, packages.size());
 		Assert.assertEquals(false, packages.get(0).isPublished());
@@ -132,7 +132,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 	 * @throws InterruptedException
 	 */
 	private static void publishInitialVersion(AdministrationService as) throws Exception {
-		GlobalProperty gp = new GlobalProperty(DictionaryPublishingConstants.GP_LAST_FULL_DICTIONARY_PUBLISH_DATE,
+		GlobalProperty gp = new GlobalProperty(DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE,
 		        "2008-08-18 00:00:00");
 		as.saveGlobalProperty(gp);
 		MetadataSharingService mss = Context.getService(MetadataSharingService.class);
