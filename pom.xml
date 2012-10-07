@@ -55,6 +55,14 @@
 				<type>pom</type>
 				<scope>test</scope>
 			</dependency>
+			
+			<dependency>
+				<groupId>org.openmrs.module</groupId>
+				<artifactId>conceptpubsub-api</artifactId>
+				<version>1.0-SNAPSHOT</version>
+				<type>jar</type>
+				<scope>provided</scope>
+			</dependency>
 			<!-- End OpenMRS modules -->
 
 			<!-- Begin OpenMRS core -->
@@ -107,6 +115,11 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>metadatasharing-api</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>conceptpubsub-api</artifactId>
 		</dependency>
 
 		<dependency>
