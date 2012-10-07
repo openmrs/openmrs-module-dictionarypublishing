@@ -27,6 +27,7 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.conceptpubsub.api.ConceptPubSubService;
 import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
 import org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService;
 import org.openmrs.module.dictionarypublishing.api.db.DictionaryPublishingDAO;
@@ -66,6 +67,10 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		return Context.getAdministrationService();
 	}
 	
+	public ConceptPubSubService getConceptPubSubService() {
+		return Context.getService(ConceptPubSubService.class);
+	}
+	
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#publishNewVersion()
 	 */
@@ -74,11 +79,11 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		GlobalProperty lastFullPublishDateGP = Context.getAdministrationService().getGlobalPropertyObject(
 		    DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE);
 		
-		final Date fromDate;
+		final Date sinceDate;
 		if (hasDictionaryBeenEverPublished()) {
-			fromDate = getLastPublishedPackage().getDateCreated();
+			sinceDate = getLastPublishedPackage().getDateCreated();
 		} else {
-			fromDate = getNextPublishDate();
+			sinceDate = getNextPublishDate();
 		}
 		
 		final boolean isInitialExport;
@@ -100,16 +105,18 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 			}
 		}
 		
-		List<Concept> concepts = dao.getConceptsToExport(fromDate);
+		final List<Concept> concepts = dao.getConceptsToExport(sinceDate);
 		//get the date as early as possible to minimize the chance of having an update
 		//or insert of a concept between now until when we actually save the export
-		Date dateCreated = new Date();
+		final Date dateCreated = new Date();
 		if (concepts.size() > 0 && (isInitialExport || expPackage != null)) {
 			PackageExporter exporter = MetadataSharing.getInstance().newPackageExporter();
-			exporter.getPackage().setDescription("Contains " + concepts.size() + " concepts");
+			exporter.getPackage().setDescription(
+			    "Contains " + concepts.size() + " concepts modified or created since "
+			            + new SimpleDateFormat(MetadataSharingConsts.DATE_FORMAT).format(sinceDate));
 			exporter.getPackage().setDateCreated(dateCreated);
 			if (isInitialExport) {
-				exporter.getPackage().setName("Concept Dictionary Package");
+				exporter.getPackage().setName(getConceptPubSubService().getLocalSource().getName() + " Concept Dictionary");
 				exporter.getExportedPackage().setIncrementalVersion(false);
 				exporter.getExportedPackage().setPublished(true);
 			} else {
@@ -284,9 +291,9 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		if (!StringUtils.isBlank(groupUuid)) {
 			List<ExportedPackage> packages = getMDSService().getExportedPackagesByGroup(groupUuid);
 			for (ExportedPackage pack : packages) {
-	            pack.setPublished(true);
-	            getMDSService().saveExportedPackage(pack);
-            }
+				pack.setPublished(true);
+				getMDSService().saveExportedPackage(pack);
+			}
 		}
 	}
 	
