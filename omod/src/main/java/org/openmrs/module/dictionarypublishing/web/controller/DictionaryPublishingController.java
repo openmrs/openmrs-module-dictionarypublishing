@@ -13,24 +13,33 @@
  */
 package org.openmrs.module.dictionarypublishing.web.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- * The main controller.
+ * The controller to process requests for concept dictionary packages
  */
 @Controller
-public class  DictionaryPublishingManageController {
+public class DictionaryPublishingController {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	@RequestMapping(value = "/module/dictionarypublishing/manage", method = RequestMethod.GET)
-	public void manage(ModelMap model) {
-		model.addAttribute("user", Context.getAuthenticatedUser());
+	@RequestMapping(value = "/module/dictionarypublishing/concept-dictionary", method = RequestMethod.GET)
+	public String getConceptDictionary(ModelMap model) {
+		String groupUuid = Context.getAdministrationService().getGlobalProperty(
+		    DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+		if (StringUtils.isBlank(groupUuid)) {
+			throw new APIException("The requested dictionary hasn't yet been published");
+		}
+		
+		return "redirect:/module/metadatasharing/package/" + groupUuid;
 	}
 }

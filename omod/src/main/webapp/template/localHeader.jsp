@@ -5,10 +5,10 @@
 				code="admin.title.short" /></a></li>
 
 	<li
-		<c:if test='<%= request.getRequestURI().contains("/manage") %>'>class="active"</c:if>>
+		<c:if test='<%= request.getRequestURI().contains("/publish") %>'>class="active"</c:if>>
 		<a
 		href="${pageContext.request.contextPath}/module/dictionarypublishing/manage.form"><spring:message
-				code="dictionarypublishing.manage" /></a>
+				code="dictionarypublishing.publish" /></a>
 	</li>
 	
 	<!-- Add further links here -->
