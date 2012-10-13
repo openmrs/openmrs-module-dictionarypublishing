@@ -18,8 +18,8 @@ package org.openmrs.module.dictionarypublishing;
  */
 public final class DictionaryPublishingConstants {
 	
-	public static final String GP_NEXT_DICTIONARY_PUBLISH_DATE = "conceptpublishing.nextDictionaryPublishDate";
+	public static final String GP_NEXT_DICTIONARY_PUBLISH_DATE = "dictionarypublishing.nextDictionaryPublishDate";
 	
-	public static final String GP_DICTIONARY_PACKAGE_GROUP_UUID = "conceptpublishing.dictionaryPackageGroupUuid";
+	public static final String GP_DICTIONARY_PACKAGE_GROUP_UUID = "dictionarypublishing.dictionaryPackageGroupUuid";
 	
 }

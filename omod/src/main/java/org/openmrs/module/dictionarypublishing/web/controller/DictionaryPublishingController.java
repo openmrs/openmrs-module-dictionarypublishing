@@ -83,7 +83,7 @@ public class DictionaryPublishingController {
 		if (hasEverBeenPublished) {
 			boolean isPublished = service.isDictionaryPublished();
 			model.addAttribute("isPublished", isPublished);
-		
+			
 			int lastPublishedVersion = service.getLastPublishedVersion();
 			model.addAttribute("lastPublishedVersion", lastPublishedVersion);
 		}
