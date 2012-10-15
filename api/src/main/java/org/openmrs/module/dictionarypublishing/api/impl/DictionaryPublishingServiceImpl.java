@@ -277,7 +277,7 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		if (StringUtils.isBlank(gp)) {
 			return null;
 		} else {
-			return gp + "/concept-dictionary";
+			return gp + "/concept-dictionary.form";
 		}
 	}
 	

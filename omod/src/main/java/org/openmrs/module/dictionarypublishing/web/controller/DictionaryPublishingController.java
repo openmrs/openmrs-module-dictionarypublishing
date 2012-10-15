@@ -54,7 +54,7 @@ public class DictionaryPublishingController {
 			throw new APIException("The requested dictionary hasn't yet been published");
 		}
 		
-		return "redirect:/ws/rest/metadatasharing/package/" + groupUuid + "/latest";
+		return "redirect:/ws/rest/metadatasharing/package/" + groupUuid + "/latest.form";
 	}
 	
 	@RequestMapping(value = MODULE_URL + "publish")
