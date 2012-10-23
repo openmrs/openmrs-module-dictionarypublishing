@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * It is a default implementation of {@link DictionaryPublishingService}.
  */
-@Transactional
 public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implements DictionaryPublishingService {
 	
 	protected final Log log = LogFactory.getLog(this.getClass());
@@ -71,24 +70,29 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		return Context.getService(ConceptPubSubService.class);
 	}
 	
+	public MetadataSharingService getMDSService() {
+		return Context.getService(MetadataSharingService.class);
+	}
+	
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#publishNewVersion()
 	 */
+	@Transactional
 	@Override
 	public void publishNewVersion() throws APIException {
-		GlobalProperty lastFullPublishDateGP = Context.getAdministrationService().getGlobalPropertyObject(
-		    DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE);
+		GlobalProperty lastPublishDateGP = Context.getAdministrationService().getGlobalPropertyObject(
+		    DictionaryPublishingConstants.GP_LAST_PUBLISH_DATE);
 		
 		final Date sinceDate;
 		if (hasDictionaryBeenEverPublished()) {
 			sinceDate = getLastPublishedPackage().getDateCreated();
 		} else {
-			sinceDate = getNextPublishDate();
+			sinceDate = getLastPublishDate();
 		}
 		
 		final boolean isInitialExport;
 		String groupUuid = Context.getAdministrationService().getGlobalProperty(
-		    DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+		    DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID);
 		
 		final ExportedPackage expPackage;
 		
@@ -106,6 +110,11 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		}
 		
 		final List<Concept> concepts = dao.getConceptsToExport(sinceDate);
+		
+		for (Concept concept : concepts) {
+	        getConceptPubSubService().addLocalMappingToConcept(concept);
+        }
+		
 		//get the date as early as possible to minimize the chance of having an update
 		//or insert of a concept between now until when we actually save the export
 		final Date dateCreated = new Date();
@@ -135,13 +144,14 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 			task.execute();
 			if (isInitialExport) {
 				AdministrationService as = Context.getAdministrationService();
-				if (lastFullPublishDateGP != null) {
-					as.purgeGlobalProperty(lastFullPublishDateGP);
+				if (lastPublishDateGP != null) {
+					lastPublishDateGP.setPropertyValue("");
+					as.saveGlobalProperty(lastPublishDateGP);
 				}
 				GlobalProperty groupUuidGP = as
-				        .getGlobalPropertyObject(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+				        .getGlobalPropertyObject(DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID);
 				if (groupUuidGP == null) {
-					groupUuidGP = new GlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID,
+					groupUuidGP = new GlobalProperty(DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID,
 					        exporter.getExportedPackage().getGroupUuid(),
 					        "The group uuid of the packages exported from this dictionary");
 				} else {
@@ -155,10 +165,11 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#disablePublishingDictionary()
 	 */
+	@Transactional
 	@Override
 	public void disablePublishingDictionary() throws APIException {
 		AdministrationService as = Context.getAdministrationService();
-		String groupUuid = as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+		String groupUuid = as.getGlobalProperty(DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID);
 		if (StringUtils.isBlank(groupUuid)) {
 			log.warn("The dictionary is not yet published");
 			return;
@@ -174,12 +185,13 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 	}
 	
 	/**
-	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#getNextPublishDate()
+	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#getLastPublishDate()
 	 */
+	@Transactional(readOnly = true)
 	@Override
-	public Date getNextPublishDate() throws APIException {
+	public Date getLastPublishDate() throws APIException {
 		String gp = getAdministrationService().getGlobalProperty(
-		    DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE, "");
+		    DictionaryPublishingConstants.GP_LAST_PUBLISH_DATE, "");
 		if (StringUtils.isBlank(gp)) {
 			return new Date(0);
 		}
@@ -187,29 +199,31 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 			return new SimpleDateFormat(MetadataSharingConsts.DATE_FORMAT).parse(gp);
 		}
 		catch (ParseException e) {
-			throw new APIException("The " + DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE
-			        + " gp has a wrong format.", e);
+			throw new APIException("The " + DictionaryPublishingConstants.GP_LAST_PUBLISH_DATE
+			        + " gp has a wrong format, expected: " + MetadataSharingConsts.DATE_FORMAT + ", found: " + gp, e);
 		}
 	}
 	
 	/**
-	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#getConceptCountSinceLastDatePublished()
+	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#getConceptsCountSinceLastDatePublished()
 	 */
+	@Transactional(readOnly = true)
 	@Override
-	public long getConceptCountSinceLastDatePublished() throws APIException {
-		List<Concept> conceptsToExport;
+	public long getConceptsCountSinceLastDatePublished() throws APIException {
+		long conceptsCount;
 		if (hasDictionaryBeenEverPublished()) {
-			conceptsToExport = dao.getConceptsToExport(getLastPublishedPackage().getDateCreated());
+			conceptsCount = dao.getConceptsToExportCount(getLastPublishedPackage().getDateCreated());
 		} else {
-			conceptsToExport = dao.getConceptsToExport(getNextPublishDate());
+			conceptsCount = dao.getConceptsToExportCount(getLastPublishDate());
 		}
 		
-		return conceptsToExport.size();
+		return conceptsCount;
 	}
 	
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#isDictionaryPublished()
 	 */
+	@Transactional(readOnly = true)
 	@Override
 	public boolean isDictionaryPublished() throws APIException {
 		String uuid = getDictionaryPackageUuid();
@@ -221,14 +235,14 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		}
 	}
 	
-	public ExportedPackage getLastPublishedPackage() throws APIException {
+	private ExportedPackage getLastPublishedPackage() throws APIException {
 		String uuid = getDictionaryPackageUuid();
 		if (!StringUtils.isBlank(uuid)) {
 			ExportedPackage exportedPackage = getMDSService().getLatestExportedPackageByGroup(uuid);
 			if (exportedPackage != null) {
 				return exportedPackage;
 			} else {
-				throw new APIException("The " + DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID
+				throw new APIException("The " + DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID
 				        + " go points to an unexisting package: " + uuid);
 			}
 		} else {
@@ -237,13 +251,14 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 	}
 	
 	private String getDictionaryPackageUuid() {
-		return getAdministrationService().getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID,
+		return getAdministrationService().getGlobalProperty(DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID,
 		    "");
 	}
 	
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#hasDictionaryBeenEverPublished()
 	 */
+	@Transactional(readOnly = true)
 	@Override
 	public boolean hasDictionaryBeenEverPublished() throws APIException {
 		String uuid = getDictionaryPackageUuid();
@@ -255,13 +270,10 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		}
 	}
 	
-	public MetadataSharingService getMDSService() {
-		return Context.getService(MetadataSharingService.class);
-	}
-	
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#getLastPublishedVersion()
 	 */
+	@Transactional(readOnly = true)
 	@Override
 	public int getLastPublishedVersion() throws APIException {
 		return getLastPublishedPackage().getVersion();
@@ -270,6 +282,7 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#getPublishedUrl()
 	 */
+	@Transactional(readOnly = true)
 	@Override
 	public String getPublishedUrl() throws APIException {
 		String gp = Context.getAdministrationService().getGlobalProperty(MetadataSharingConsts.GP_URL_PREFIX, "");
@@ -284,10 +297,11 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 	/**
 	 * @see org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService#enablePublishingDictionary()
 	 */
+	@Transactional
 	@Override
 	public void enablePublishingDictionary() throws APIException {
 		String groupUuid = Context.getAdministrationService().getGlobalProperty(
-		    DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID, "");
+		    DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID, "");
 		if (!StringUtils.isBlank(groupUuid)) {
 			List<ExportedPackage> packages = getMDSService().getExportedPackagesByGroup(groupUuid);
 			for (ExportedPackage pack : packages) {

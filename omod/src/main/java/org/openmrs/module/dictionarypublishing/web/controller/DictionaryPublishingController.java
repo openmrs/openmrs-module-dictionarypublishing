@@ -24,6 +24,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.conceptpubsub.api.ConceptPubSubService;
 import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
 import org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService;
+import org.openmrs.module.metadatasharing.MetadataSharing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -49,7 +50,7 @@ public class DictionaryPublishingController {
 	@RequestMapping(value = "concept-dictionary", method = RequestMethod.GET)
 	public String getConceptDictionary(ModelMap model) {
 		String groupUuid = Context.getAdministrationService().getGlobalProperty(
-		    DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+		    DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID);
 		if (StringUtils.isBlank(groupUuid)) {
 			throw new APIException("The requested dictionary hasn't yet been published");
 		}
@@ -59,17 +60,21 @@ public class DictionaryPublishingController {
 	
 	@RequestMapping(value = MODULE_URL + "publish")
 	public String configurePublish(ModelMap model) throws Exception {
-		if (!mappingService.isLocalSourceConfigured()) {
-			return MODULE_URL + "notConfigured";
+		if (!mappingService.isAddLocalMappingOnExport() || !mappingService.isLocalSourceConfigured()) {
+			return MODULE_URL + "localSourceNotConfigured";
+		}
+		
+		if (!MetadataSharing.getInstance().isPublishConfigured()) {
+			return MODULE_URL + "publishNotConfigured";
 		}
 		
 		if (!service.hasDictionaryBeenEverPublished()) {
-			Date nextPublishDate = service.getNextPublishDate();
+			Date nextPublishDate = service.getLastPublishDate();
 			model.addAttribute("nextPublishDate", nextPublishDate);
 		}
 		
-		long conceptCount = service.getConceptCountSinceLastDatePublished();
-		model.addAttribute("conceptCount", conceptCount);
+		long conceptsCount = service.getConceptsCountSinceLastDatePublished();
+		model.addAttribute("conceptsCount", conceptsCount);
 		
 		ConceptSource localSource = mappingService.getLocalSource();
 		model.addAttribute("localSource", localSource);

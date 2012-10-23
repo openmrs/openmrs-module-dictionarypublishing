@@ -31,9 +31,15 @@
 	
 	<!-- Global properties -->
 	<globalProperty>
-		<property>${project.parent.artifactId}.dictionaryPackageGroupUuid</property>
+		<property>${project.parent.artifactId}.packageGroupUuid</property>
 		<defaultValue></defaultValue>
 		<description>The group uuid of the packages exported from this dictionary</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>${project.parent.artifactId}.lastPublishDate</property>
+		<defaultValue></defaultValue>
+		<description>The date when the concepts have been last published</description>
 	</globalProperty>
 	
 	<!-- Adds link to admin page -->

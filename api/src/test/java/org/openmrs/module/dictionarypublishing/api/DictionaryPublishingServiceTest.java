@@ -60,9 +60,9 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 		Assert.assertEquals(true, p.isPublished());
 		Assert.assertEquals(6, p.getItems().size());
 		//should have cleared the GP since this is the initial export
-		Assert.assertNull(as.getGlobalProperty(DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE));
+		Assert.assertEquals("", as.getGlobalProperty(DictionaryPublishingConstants.GP_LAST_PUBLISH_DATE));
 		Assert.assertEquals(p.getGroupUuid(),
-		    as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID));
+		    as.getGlobalProperty(DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID));
 	}
 	
 	/**
@@ -89,7 +89,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 		Assert.assertEquals(
 		    1,
 		    mss.getLatestExportedPackageByGroup(
-		        as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID)).getItems().size());
+		        as.getGlobalProperty(DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID)).getItems().size());
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 	public void unpublishDictionary_shouldUnPublishTheMatchingExportedPackagesInThisDictionary() throws Exception {
 		AdministrationService as = Context.getAdministrationService();
 		publishInitialVersion(as);
-		String groupUuid = as.getGlobalProperty(DictionaryPublishingConstants.GP_DICTIONARY_PACKAGE_GROUP_UUID);
+		String groupUuid = as.getGlobalProperty(DictionaryPublishingConstants.GP_PACKAGE_GROUP_UUID);
 		Assert.assertNotNull(groupUuid);
 		MetadataSharingService mss = Context.getService(MetadataSharingService.class);
 		List<ExportedPackage> packages = mss.getExportedPackagesByGroup(groupUuid);
@@ -135,7 +135,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 	private static void publishInitialVersion(AdministrationService as) throws Exception {
 		Context.getService(ConceptPubSubService.class).setLocalConceptSource(Context.getConceptService().getConceptSource(2));
 		
-		GlobalProperty gp = new GlobalProperty(DictionaryPublishingConstants.GP_NEXT_DICTIONARY_PUBLISH_DATE,
+		GlobalProperty gp = new GlobalProperty(DictionaryPublishingConstants.GP_LAST_PUBLISH_DATE,
 		        "2008-08-18 00:00:00");
 		as.saveGlobalProperty(gp);
 		MetadataSharingService mss = Context.getService(MetadataSharingService.class);

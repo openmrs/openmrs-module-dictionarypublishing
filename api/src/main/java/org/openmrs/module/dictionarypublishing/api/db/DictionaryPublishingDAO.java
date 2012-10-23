@@ -33,5 +33,13 @@ public interface DictionaryPublishingDAO {
 	 * @return a list of concepts
 	 * @should return all concept modified or created after the specified date
 	 */
-	public List<Concept> getConceptsToExport(Date fromDate);
+	List<Concept> getConceptsToExport(Date fromDate);
+	
+	/**
+	 * Gets a number of concepts which have been modified since the specified date.
+	 * 
+	 * @param fromDate
+	 * @return the number of modified concepts
+	 */
+	long getConceptsToExportCount(Date fromDate);
 }

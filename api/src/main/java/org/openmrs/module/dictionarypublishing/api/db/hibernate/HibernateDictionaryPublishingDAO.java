@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
 import org.openmrs.module.dictionarypublishing.api.db.DictionaryPublishingDAO;
@@ -68,6 +69,12 @@ public class HibernateDictionaryPublishingDAO implements DictionaryPublishingDAO
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Concept> getConceptsToExport(Date fromDate) {
+		Criteria criteria = newModifiedConceptsCriteria(fromDate);
+		
+		return criteria.list();
+	}
+	
+	private Criteria newModifiedConceptsCriteria(Date fromDate) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Concept.class);
 		if (fromDate != null) {
 			Criterion c;
@@ -79,7 +86,17 @@ public class HibernateDictionaryPublishingDAO implements DictionaryPublishingDAO
 			}
 			criteria.add(c);
 		}
+		return criteria;
+	}
+	
+	/**
+	 * @see org.openmrs.module.dictionarypublishing.api.db.DictionaryPublishingDAO#getConceptsToExportCount(java.util.Date)
+	 */
+	@Override
+	public long getConceptsToExportCount(Date fromDate) {
+		Criteria criteria = newModifiedConceptsCriteria(fromDate);
+		criteria.setProjection(Projections.rowCount());
 		
-		return criteria.list();
+		return ((Number) criteria.uniqueResult()).longValue();
 	}
 }
