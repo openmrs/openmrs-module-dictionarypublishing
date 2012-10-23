@@ -58,7 +58,7 @@
 			
 			<dependency>
 				<groupId>org.openmrs.module</groupId>
-				<artifactId>conceptpubsub-api</artifactId>
+				<artifactId>metadatamapping-api</artifactId>
 				<version>1.0-SNAPSHOT</version>
 				<type>jar</type>
 				<scope>provided</scope>
@@ -119,7 +119,7 @@
 		
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>conceptpubsub-api</artifactId>
+			<artifactId>metadatamapping-api</artifactId>
 		</dependency>
 
 		<dependency>

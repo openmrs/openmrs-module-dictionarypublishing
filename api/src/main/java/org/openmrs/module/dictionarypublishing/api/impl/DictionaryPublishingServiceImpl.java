@@ -27,10 +27,10 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.module.conceptpubsub.api.ConceptPubSubService;
 import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
 import org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService;
 import org.openmrs.module.dictionarypublishing.api.db.DictionaryPublishingDAO;
+import org.openmrs.module.metadatamapping.api.MetadataMappingService;
 import org.openmrs.module.metadatasharing.ExportedPackage;
 import org.openmrs.module.metadatasharing.MetadataSharing;
 import org.openmrs.module.metadatasharing.MetadataSharingConsts;
@@ -66,8 +66,8 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		return Context.getAdministrationService();
 	}
 	
-	public ConceptPubSubService getConceptPubSubService() {
-		return Context.getService(ConceptPubSubService.class);
+	public MetadataMappingService getMetadataMappingService() {
+		return Context.getService(MetadataMappingService.class);
 	}
 	
 	public MetadataSharingService getMDSService() {
@@ -112,7 +112,7 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 		final List<Concept> concepts = dao.getConceptsToExport(sinceDate);
 		
 		for (Concept concept : concepts) {
-	        getConceptPubSubService().addLocalMappingToConcept(concept);
+			getMetadataMappingService().addLocalMappingToConcept(concept);
         }
 		
 		//get the date as early as possible to minimize the chance of having an update
@@ -125,7 +125,7 @@ public class DictionaryPublishingServiceImpl extends BaseOpenmrsService implemen
 			            + new SimpleDateFormat(MetadataSharingConsts.DATE_FORMAT).format(sinceDate));
 			exporter.getPackage().setDateCreated(dateCreated);
 			if (isInitialExport) {
-				exporter.getPackage().setName(getConceptPubSubService().getLocalSource().getName() + " Concept Dictionary");
+				exporter.getPackage().setName(getMetadataMappingService().getLocalSource().getName() + " Concept Dictionary");
 				exporter.getExportedPackage().setIncrementalVersion(false);
 				exporter.getExportedPackage().setPublished(true);
 			} else {

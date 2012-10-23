@@ -21,9 +21,9 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.ConceptSource;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.conceptpubsub.api.ConceptPubSubService;
 import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
 import org.openmrs.module.dictionarypublishing.api.DictionaryPublishingService;
+import org.openmrs.module.metadatamapping.api.MetadataMappingService;
 import org.openmrs.module.metadatasharing.MetadataSharing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,7 +45,7 @@ public class DictionaryPublishingController {
 	private DictionaryPublishingService service;
 	
 	@Autowired
-	private ConceptPubSubService mappingService;
+	private MetadataMappingService mappingService;
 	
 	@RequestMapping(value = "concept-dictionary", method = RequestMethod.GET)
 	public String getConceptDictionary(ModelMap model) {

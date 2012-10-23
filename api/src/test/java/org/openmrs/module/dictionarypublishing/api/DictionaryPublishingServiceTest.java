@@ -25,8 +25,8 @@ import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.conceptpubsub.api.ConceptPubSubService;
 import org.openmrs.module.dictionarypublishing.DictionaryPublishingConstants;
+import org.openmrs.module.metadatamapping.api.MetadataMappingService;
 import org.openmrs.module.metadatasharing.ExportedPackage;
 import org.openmrs.module.metadatasharing.api.MetadataSharingService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -133,7 +133,7 @@ public class DictionaryPublishingServiceTest extends BaseModuleContextSensitiveT
 	 * @throws InterruptedException
 	 */
 	private static void publishInitialVersion(AdministrationService as) throws Exception {
-		Context.getService(ConceptPubSubService.class).setLocalConceptSource(Context.getConceptService().getConceptSource(2));
+		Context.getService(MetadataMappingService.class).setLocalConceptSource(Context.getConceptService().getConceptSource(2));
 		
 		GlobalProperty gp = new GlobalProperty(DictionaryPublishingConstants.GP_LAST_PUBLISH_DATE,
 		        "2008-08-18 00:00:00");
